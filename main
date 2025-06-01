@@ -1,0 +1,168 @@
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "YourDeviceName"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>  // Ganti jadi ESP8266 jika kamu pakai ESP8266
+#include <DHT.h>
+
+char ssid[] = "YourWiFiSSID";
+char pass[] = "YourWiFiPassword";
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define LDR_PIN A0
+#define RAIN_PIN A1
+#define LED_PIN 8
+#define BUZZER_PIN 9
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+}
+
+void loop() {
+  Blynk.run();
+
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  int ldrValue = analogRead(LDR_PIN);
+  int rainValue = analogRead(RAIN_PIN);
+
+  Blynk.virtualWrite(V0, temp);
+  Blynk.virtualWrite(V1, humidity);
+  Blynk.virtualWrite(V2, ldrValue);
+  Blynk.virtualWrite(V3, rainValue);
+
+  if (ldrValue < 500) digitalWrite(LED_PIN, HIGH);
+  else digitalWrite(LED_PIN, LOW);
+
+  if (rainValue < 400 || temp > 30) digitalWrite(BUZZER_PIN, HIGH);
+  else digitalWrite(BUZZER_PIN, LOW);
+
+  delay(2000);
+}
+
+-----------------------------------------
+
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "YourDeviceName"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+#include <DHT.h>
+
+char ssid[] = "YourWiFiSSID";
+char pass[] = "YourWiFiPassword";
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define PIRPIN 3
+#define BUZZER 8
+#define LDRPIN A0
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  pinMode(PIRPIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+}
+
+void loop() {
+  Blynk.run();
+
+  int pirState = digitalRead(PIRPIN);
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  int ldrValue = analogRead(LDRPIN);
+
+  Blynk.virtualWrite(V0, temp);
+  Blynk.virtualWrite(V1, humidity);
+  Blynk.virtualWrite(V2, pirState);
+  Blynk.virtualWrite(V3, ldrValue);
+
+  if (pirState == HIGH && temp > 30 && ldrValue < 500) {
+    digitalWrite(BUZZER, HIGH);
+  } else {
+    digitalWrite(BUZZER, LOW);
+  }
+
+  delay(1000);
+}
+
+----------------------------------------
+
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "YourDeviceName"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+#include <DHT.h>
+
+char ssid[] = "YourWiFiSSID";
+char pass[] = "YourWiFiPassword";
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+#define MQ2_PIN A0
+#define FLAME_PIN 3
+#define BUZZER_PIN 8
+#define LED_PIN 13
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  pinMode(MQ2_PIN, INPUT);
+  pinMode(FLAME_PIN, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+}
+
+void loop() {
+  Blynk.run();
+
+  int mq2Value = analogRead(MQ2_PIN);
+  int flameState = digitalRead(FLAME_PIN);
+  float temp = dht.readTemperature();
+
+  Blynk.virtualWrite(V0, mq2Value);
+  Blynk.virtualWrite(V1, flameState);
+  Blynk.virtualWrite(V2, temp);
+
+  bool gasDetected = mq2Value > 300;
+  bool flameDetected = flameState == HIGH;
+  bool highTemp = temp > 50;
+
+  if (gasDetected || flameDetected || highTemp) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    digitalWrite(LED_PIN, HIGH);
+    Blynk.logEvent("fire_alert", " Potensi kebakaran terdeteksi!");
+  } else {
+    digitalWrite(BUZZER_PIN, LOW);
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  delay(1000);
+}
