@@ -32,7 +32,7 @@ void loop() {
   Serial.print(" | Humidity: "); Serial.println(humidity);
 
   // LED untuk LDR (nyala saat terang)
-  if (ldrValue < 500) {  // Sesuaikan threshold
+  if (ldrValue < 500) {  
     digitalWrite(LED_PIN, HIGH);
   } else {
     digitalWrite(LED_PIN, LOW);
@@ -45,7 +45,7 @@ void loop() {
     digitalWrite(BUZZER_PIN, LOW);
   }
 
-  delay(2000); // Delay antar pembacaan
+  delay(2000); 
 }
 
 //LDR	A0	
