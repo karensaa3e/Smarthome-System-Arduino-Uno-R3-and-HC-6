@@ -1,0 +1,55 @@
+#include <DHT.h>
+
+#define DHTPIN 2          // DHT data pin
+#define DHTTYPE DHT11     // atau DHT22
+
+#define LDR_PIN A0
+#define RAIN_PIN A1
+#define LED_PIN 8
+#define BUZZER_PIN 9
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+}
+
+void loop() {
+  // Baca sensor
+  int ldrValue = analogRead(LDR_PIN);
+  int rainValue = analogRead(RAIN_PIN);
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  // Debug info
+  Serial.print("LDR: "); Serial.print(ldrValue);
+  Serial.print(" | Rain: "); Serial.print(rainValue);
+  Serial.print(" | Temp: "); Serial.print(temp);
+  Serial.print(" | Humidity: "); Serial.println(humidity);
+
+  // LED untuk LDR (nyala saat terang)
+  if (ldrValue < 500) {  // Sesuaikan threshold
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  // Buzzer jika hujan atau suhu tinggi
+  if (rainValue < 400 || temp > 30) {
+    digitalWrite(BUZZER_PIN, HIGH);
+  } else {
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+
+  delay(2000); // Delay antar pembacaan
+}
+
+//LDR	A0	
+//Raindrop	A1 
+//DHT11/DHT22	Digital 
+//LED	Pin 8	
+//Buzzer	Pin 9
