@@ -1,0 +1,62 @@
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+String runningText = " ";
+int scrollPos = 0;
+
+int displayState = 0;
+
+void setup() {
+  lcd.init();
+  lcd.backlight();
+  Serial.begin(9600);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Loading...");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  float temp = dht.readTemperature();
+  float hum = dht.readHumidity();
+  int ldrValue = analogRead(LDR_PIN);
+
+  Serial.print("Suhu: ");
+  Serial.println(temp);
+  Serial.print("Kelembaban: ");
+  Serial.println(hum);
+  Serial.print("LDR: ");
+  Serial.println(ldrValue);
+
+  if (temp >= 50.0) {
+    tone(BUZZER_PIN, 2000);
+  } else {
+    noTone(BUZZER_PIN);
+  }
+
+  if (ldrValue < 500) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  lcd.setCursor(0, 1);
+  lcd.print("                "); 
+
+  lcd.setCursor(0, 1);
+  if (displayState == 0) {
+    lcd.print("Suhu: ");
+    lcd.print(temp);
+    lcd.print("C");
+  } else if (displayState == 1) {
+    lcd.print("Hum: ");
+    lcd.print(hum);
+    lcd.print("%");
+  } else if (displayState == 2) {
+    lcd.print("LDR: ");
+    lcd.print(ldrValue);
+  }
+
+  delay(300); 
+}
