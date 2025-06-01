@@ -1,0 +1,50 @@
+#include <DHT.h>
+#include <Servo.h>
+
+#define DHTPIN 2
+#define PIRPIN 3
+#define BUZZER 8
+#define LDRPIN A0
+#define SERVOPIN 9
+
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+Servo myservo;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIRPIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+  dht.begin();
+  myservo.attach(SERVOPIN);
+  myservo.write(90); 
+}
+
+void loop() {
+  int pirState = digitalRead(PIRPIN);
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  int ldrValue = analogRead(LDRPIN);
+
+  Serial.print("Gerakan: ");
+  Serial.print(pirState == HIGH ? "Terdeteksi" : "Tidak");
+  Serial.print(" | Suhu: ");
+  Serial.print(temperature);
+  Serial.print("C | LDR: ");
+  Serial.println(ldrValue);
+
+  if (pirState == HIGH) {
+    myservo.write(0); 
+  } else {
+    myservo.write(90); 
+  }
+
+
+  if (pirState == HIGH && temperature > 30 && ldrValue < 500) {
+    digitalWrite(BUZZER, HIGH); 
+  } else {
+    digitalWrite(BUZZER, LOW); 
+  }
+
+  delay(1000); 
+}
