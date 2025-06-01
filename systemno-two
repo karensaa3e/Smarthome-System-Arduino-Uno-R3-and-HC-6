@@ -1,0 +1,64 @@
+MQ-2 VCC	5V	
+MQ-2 GND	GND	
+MQ-2 Analog	A0	
+DHT11 VCC	5V	
+DHT11 GND	GND	
+DHT11 Data	Pin 2	
+Flame Sensor VCC	5V	
+Flame Sensor GND	GND	
+Flame Sensor Digital	Pin 3	
+Buzzer	Pin 8	
+LED Merah	Pin 13
+
+#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+#define MQ2_PIN A0
+#define FLAME_PIN 3
+#define BUZZER_PIN 8
+#define LED_PIN 13
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(MQ2_PIN, INPUT);
+  pinMode(FLAME_PIN, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  dht.begin();
+  
+  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(LED_PIN, LOW);
+}
+
+void loop() {
+  int mq2Value = analogRead(MQ2_PIN);
+  int flameState = digitalRead(FLAME_PIN);
+  float temperature = dht.readTemperature();
+
+  Serial.print("MQ2 Gas level: ");
+  Serial.print(mq2Value);
+  Serial.print(" | Flame: ");
+  Serial.print(flameState == LOW ? "Tidak terdeteksi" : "Terdeteksi");
+  Serial.print(" | Suhu: ");
+  Serial.print(temperature);
+  Serial.println(" C");
+
+  bool gasDetected = mq2Value > 300; 
+  bool flameDetected = flameState == HIGH;
+  bool highTemp = temperature > 50; 
+
+  if (gasDetected || flameDetected || highTemp) {
+    digitalWrite(BUZZER_PIN, HIGH);  
+    digitalWrite(LED_PIN, HIGH);     
+    Serial.println("!! Peringatan Kebakaran !!");
+  } else {
+    digitalWrite(BUZZER_PIN, LOW);
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  delay(1000);
+}
