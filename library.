@@ -60,3 +60,10 @@ void loop() {
 
   delay(300); 
 }
+
+
+blynk
+DHT sensor library by Adafruit
+Adafruit Unified Sensor 
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
